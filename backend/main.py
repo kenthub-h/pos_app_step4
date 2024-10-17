@@ -18,7 +18,7 @@ app.add_middleware(
 # MySQL接続設定
 db_config = {
     'user': 'root',
-    'password': '06190523k',  # MySQLのパスワードに合わせて変更
+    'password': 'password',  # MySQLのパスワードに合わせて変更
     'host': 'localhost',
     'database': 'pos_app'
 }
