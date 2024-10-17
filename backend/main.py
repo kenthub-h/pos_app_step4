@@ -1,14 +1,24 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import mysql.connector
 
 app = FastAPI()
 
+# CORS設定を追加
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 必要に応じてNext.jsのURLに制限できます（例: ["http://localhost:3000"]）
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # MySQL接続設定
 db_config = {
     'user': 'root',
-    'password': 'password',
+    'password': '06190523k',  # MySQLのパスワードに合わせて変更
     'host': 'localhost',
     'database': 'pos_app'
 }
@@ -29,12 +39,23 @@ class Purchase(BaseModel):
 def get_product(code: str):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM product_master WHERE code = %s", (code,))
+    
+    # デバッグ用のprint文を追加
+    print(f"Looking for product with code: {code}")
+    
+    # TRIMを使用して余分なスペースを削除して検索
+    cursor.execute("SELECT * FROM product_master WHERE TRIM(code) = %s", (code,))
     product = cursor.fetchone()
+    
+    # デバッグ用のprint文を追加
+    print(f"Query result: {product}")
+    
     conn.close()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
+
+
 
 # 購入API
 @app.post("/purchase")
