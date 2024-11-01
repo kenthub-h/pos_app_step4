@@ -3,6 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import mysql.connector
+import os
+from dotenv import load_dotenv
+
+# .envファイルの内容を読み込む
+load_dotenv()
 
 app = FastAPI()
 
@@ -15,12 +20,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# MySQL接続設定
+# MySQL接続設定を.envから読み込み
 db_config = {
-    'user': 'root',
-    'password': 'password',  # MySQLのパスワードに合わせて変更
-    'host': 'localhost',
-    'database': 'pos_app'
+    'user': os.getenv("DB_USER"),
+    'password': os.getenv("DB_PASSWORD"),
+    'host': os.getenv("DB_HOST"),
+    'database': os.getenv("DB_NAME")
 }
 
 # 商品情報を格納するモデル
@@ -54,8 +59,6 @@ def get_product(code: str):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
-
-
 
 # 購入API
 @app.post("/purchase")
